@@ -1,10 +1,8 @@
 package pl.githussar.client;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import pl.githussar.client.operations.TransferAmount;
 import pl.githussar.client.operations.ChargeAmount;
 import pl.githussar.tx.Operation;
 import pl.githussar.tx.TransactionsManager;
@@ -26,23 +24,21 @@ public class BankServiceCaller {
 	}
 	
 	public Operation.Status executeOperation(){
-		List<Operation> operations = createBankTransferOperations(amount, accountFrom, accountTo);
+		if (!checkParametrs()){
+			return Operation.Status.ERROR;
+		}
+		BankTransferOperationBuilder transferOperation = BankTransferOperationBuilder.creatInstance();
+		List<Operation> operations = transferOperation.createBankTransferOperations(amount, accountFrom, accountTo);
+		
 		TransactionsManager transactionManager = new TransactionsManager();
 		Operation.Status result = transactionManager.processOperations(operations);
 		
 		logger.debug("Bank transfer finished with status:"+result);
 		return result; 
 	}
-
-	private static List<Operation> createBankTransferOperations(Double transferAmount
-			, String fromAccount, String toAccount){
-		
-		ChargeAmount chargeAccount = ChargeAmount.createInstance(transferAmount, fromAccount);
-		TransferAmount transferOperation = TransferAmount.createInstance(transferAmount, toAccount);
-		List<Operation> operation = new ArrayList<Operation>();
-		operation.add(chargeAccount);
-		operation.add(transferOperation);
-		return operation;
+	
+	private boolean checkParametrs(){
+		return amount != null && accountFrom != null && accountTo != null;
 	}
 
 	public Double getAmount() {

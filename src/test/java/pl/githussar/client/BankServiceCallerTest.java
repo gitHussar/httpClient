@@ -16,29 +16,25 @@ import pl.githussar.client.operations.TransferAmount;
 import pl.githussar.tx.Operation;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ChargeAmount.class, TransferAmount.class})
+@PrepareForTest({BankTransferOperationBuilder.class})
 public class BankServiceCallerTest {
 
 	@Mock
-	private ChargeAmount chargeAmount;
-	
-	@Mock
-	private TransferAmount transferAmount;
+	private BankTransferOperationBuilder bankTransferOperationBuilder;
 	
 	@Before
 	public void setUp(){
-		PowerMockito.mockStatic(ChargeAmount.class);
-		PowerMockito.mockStatic(TransferAmount.class);
-		Mockito.when(ChargeAmount.createInstance(Matchers.anyDouble(), Matchers.anyString())).thenReturn(chargeAmount);
-		Mockito.when(TransferAmount.createInstance(Matchers.anyDouble(), Matchers.anyString())).thenReturn(transferAmount);
+		PowerMockito.mockStatic(BankTransferOperationBuilder.class);
+		BankTransferOperationBuilder bankTransferOperationBuilder = Mockito.mock(BankTransferOperationBuilder.class);
+		Mockito.when(BankTransferOperationBuilder.creatInstance()).thenReturn(bankTransferOperationBuilder);
 	}
 	
 	@Test
-	public void testFlow(){
+	public void shouldReturnErrorStatusIfOneOfEntryParamIsNull(){
 		//given
 		
 		//when
-		BankServiceCaller bankServiceCaller = new BankServiceCaller(100.0, "A", "B");
+		BankServiceCaller bankServiceCaller = new BankServiceCaller(100.0, "A", null);
 		Operation.Status status = bankServiceCaller.executeOperation();
 		
 		//then

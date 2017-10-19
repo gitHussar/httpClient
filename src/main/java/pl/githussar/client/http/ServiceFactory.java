@@ -2,21 +2,23 @@ package pl.githussar.client.http;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+
 import pl.githussar.client.mock.AnswerMock;
-import pl.githussar.client.mock.MarshallerMock;
 import pl.githussar.tx.Operation;
 
 public class ServiceFactory {
 	
-	MarshallerMock marshaller = new MarshallerMock();
-	
 	HttpConnector httpConnector = new HttpConnector();
 	
 	public Operation.Status callService(String uri){
-		try {
+		try { 
 			HttpURLConnection connection = httpConnector.connect(uri);
+			JAXBContext jContext = JAXBContext.newInstance("XML");
+	        Unmarshaller unmarshaller = jContext.createUnmarshaller();
 			InputStream xml = connection.getInputStream();
-			AnswerMock answer = marshaller.unmarshal(xml);
+			AnswerMock answer = (AnswerMock)unmarshaller.unmarshal(xml);
 			connection.disconnect();
 			
 			if ("OK".equals(answer.getStatus())){
@@ -28,15 +30,7 @@ public class ServiceFactory {
 			return Operation.Status.ERROR;
 		}
 	}
-
-	public MarshallerMock getMarshaller() {
-		return marshaller;
-	}
-
-	public void setMarshaller(MarshallerMock marshaller) {
-		this.marshaller = marshaller;
-	}
-
+	
 	public HttpConnector getHttpConnector() {
 		return httpConnector;
 	}
@@ -44,5 +38,7 @@ public class ServiceFactory {
 	public void setHttpConnector(HttpConnector httpConnector) {
 		this.httpConnector = httpConnector;
 	}
+
+
 
 }
